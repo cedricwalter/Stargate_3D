@@ -165,7 +165,7 @@ void wormholeDemo()
   // wormholeStartMillis = millis();
   if (wormholeActive)
   {
-    chevron01 = CHSV(19, 255, 255);
+    chevron01 = CHSV(19, 255, 255); // is a fully saturated, fully bright color with hue ≈ 19 (a warm orange).
     chevron02 = CHSV(19, 255, 255);
     chevron03 = CHSV(19, 255, 255);
     chevron04 = CHSV(19, 255, 255);
