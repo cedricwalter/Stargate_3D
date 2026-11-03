@@ -1,7 +1,41 @@
-# Stargate_3D
+
+# Stargate Dial Home Device (DHD)
+Arduino code used to build the DHD lights and sounds for a 3D build.
+
+The DHD code has many mode controlled by a menu button (press multiple time to select the menu)
+- menu 1: randomly select 7 keys and light them up, the central button is also on. In this mode you can keep the DHD on
+- menu 2: select the earth adress the central button is also on. In this mode you can keep the DHD on
+- menu 3: play a sequence of selecting 7 random keys with sound effects
+
+**WORK IN PROGRESS**
+
+## 3D Printing
+https://makerworld.com/en/models/1850967-stargate-dhd-large 
+
+## Bill of Materials
+
+- LEDs https://de.aliexpress.com/item/1005006335228821.html (the one I used)
+- NodeMcu Mini D1
+- DFPlayer Mini MP3 Player
+- Speaker(s)
+
+## Wiring
+**WORK IN PROGRESS**
+
+## Programming
+**WORK IN PROGRESS**
+
+## Links
+- https://stargate.fandom.com/wiki/Dial_Home_Device
+
+# Stargate gate
 Arduino code used to build the Stargate lights and sounds for a 3D build.
 
 ## 3D Printing
+
+I recommend you to use
+https://makerworld.com/en/models/577364-3ft-stargate-with-electronics 
+
 
 Original 3D model files can be found here: 
 https://www.printables.com/model/560402-stargate-with-iris-80cm-in-diameter
@@ -11,14 +45,18 @@ https://www.printables.com/model/688291-stargate-modified-chevron-parts
 
 ## Bill of Materials
 
-Addressable LED lights used are called "Chasing Dream Full Color Twinkle Decorative" on Amazon: 
-https://www.amazon.com/dp/B0BVZLWQ2T
+- LEDs https://de.aliexpress.com/item/1005006335228821.html (the one I used)
+- NodeMcu Mini D1
+- DFPlayer Mini MP3 Player
+- Speaker(s)
 
 The Arduino hardware used is the NodeMcu Mini D1. It's a WiFi enabled board, which is far more powerful than this build required. But it's small and was in my parts bin to use. It also allows future upgrades to use the WiFi option for IoT control, if desired.
 
 ### DFPlayer Mini MP3 Player
 
 The DFPlayer Mini MP3 Player For Arduino is a small and low cost MP3 module with an simplified output directly to the speaker. The module can be used as a stand alone module with attached battery, speaker and push buttons or used in combination with microcontrollers such as Arduino, ESP32, Raspberry Pi and any microcontrollers with Uart.
+
+![alt text](stargate/img/DFPlayer-pinout2.png) ![alt text](stargate/img/DFPlayer-pinout.png)
 
 #### Specification
 
@@ -51,20 +89,21 @@ You can also power everything using the USB-C port of the NodeMcu Mini D1.
 
 ## Wiring
 
-![alt text](img/circuit.png)
+![alt text](stargate/img/circuit.png)
 
 DFPlayer Mini wiring as reference
 
-![alt text](img/DFPlayer-pinout.png)
+![alt text](stargate/img/DFPlayer-pinout.png)
+
+![alt text](stargate/img/PXL_20240128_164833397.jpg) ![alt text](stargate/img/PXL_20240128_164838664.jpg) ![alt text](stargate/img/PXL_20240128_164844988.jpg)
 
 ## Mouting LED onto the stargate
-
 
 ## Prepare SDCard
 
 Files must be named in a specific way and uploaded in the order you intend to reference them in code, or it won't work correctly.
 
-Format a micro sdcard as FAT32 (use rapsberry pi imager is the easiest), mo partition! no SDcard bigger than 16GB
+Format a micro sdcard as FAT32 (use rapsberry pi imager is the easiest), no partition! no SDcard bigger than 16GB
 
 ### For Mac User
 
@@ -79,15 +118,15 @@ Copy the file 0001.mp3 onto it, unmount and insert into the player
 
 Install Arduino IDE
 
-Open the Stargate.ino file 
+Open the stargate/Stargate.ino file 
 
 Choose your board
 
-![target board](img/target.png)
+![target board](stargate/img/target.png)
 
 Install these libraries
 
-![alt text](img/libraries.png)
+![alt text](stargate/img/libraries.png)
 
 You only have to change the value of the LED in that file depending how you mounted them physically inside the gate. Change one variable at a time till one chevron (3 consecutive leds) is properly lighted on
 
@@ -108,3 +147,12 @@ Upload code and push button once or go to demo mode to see all chevron illuminat
 The pin numbers in the Stargate.ino will indicate what wires were used for the button (D2), LEDs (D7 for Chevrons, D8 for wormhole glow), and MP3 (D5 and D6) connections. 
 
 
+## Get other mp3
+
+Read https://done.land/components/audio/playback/dfplayermini/preparesdcard/ on how to ensure the new mp3 is in a vlid format.
+
+- https://www.101soundboards.com/boards/33269-stargate-sg1-soundboard
+- https://universal-soundbank.com/en/stargate-sg1.htm
+
+## Code improvment
+- https://wiki.dfrobot.com/dfplayer_mini_sku_dfr0299#For%20Mac%20User
