@@ -78,9 +78,6 @@ bool chevronLocked = false;
 bool finalLock = false;
 int buttonPressCount = 0;
 
-// {Active, Brightness, FadeDirection, Color}
-int wormholeArray[NUM_LEDS2][4] = {{0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}, {0, 255, 1, 0}};
-
 void setup()
 {
   initPlayer();
@@ -119,6 +116,69 @@ void initPlayer()
 
 void loop()
 {
-  
+  if(button.pressed()){
+    buttonPressCount++;
+    if (buttonPressCount > 4) { buttonPressCount = 0; } // increase to 3 if you want to play the theme without sound
+
+    FastLED.clear();
+    FastLED.show();
+    // Stop playing MP3
+    myDFPlayer.stop();
+    startMillis = millis();
+
+    // reset to default
+    for (int i = 0; i <= NUM_LEDS2; i++) { wormholeArray[i][0] = 0; wormholeArray[i][1] = 255; wormholeArray[i][2] = 1; wormholeArray[i][3] = 0; }
+
+    if (buttonPressCount == 1) {
+      Serial.println(F("1. Dialing"));
+      myDFPlayer.stop();
+      dialing = true;
+      myDFPlayer.volume(19);
+      myDFPlayer.play(1);
+    }
+    else if (buttonPressCount == 2) {
+      Serial.println(F("2. Demo"));
+      myDFPlayer.stop();
+      dialing = false;
+      //myDFPlayer.volume(10);
+      //myDFPlayer.loop(2);
+      wormholeDemo();
+    }
+    else if (buttonPressCount == 3) {
+      Serial.println(F("3. Play theme"));
+      myDFPlayer.stop();
+      myDFPlayer.volume(19);
+      myDFPlayer.play(1);
+      dialing = false;
+    }
+    else if (buttonPressCount == 4) {
+      Serial.println(F("4. DHD demo"));
+      myDFPlayer.stop();
+      dialing = false;
+      chevronDemo();
+    }
+    else {
+      Serial.println(F("No Button, stop all"));
+      dialing = false;
+      myDFPlayer.stop();
+      FastLED.clear();
+    }
+  }
+
+  if (dialing){
+    dialingSequence();
+  }
+
+  FastLED.show();
 }
 
+void dialingSequence() {
+  // How long dialing sequence has been running since button press
+  long dialDuration = millis() - startMillis;
+
+  // WIP
+
+  if (dialDuration > 67000) {
+    dialing = false;
+  }
+}
