@@ -3,6 +3,8 @@
 #include "Arduino.h"
 #include "DFRobotDFPlayerMini.h"
 #include <SoftwareSerial.h>
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
 
 SoftwareSerial softSerial(/*rx =*/D5, /*tx =*/D6); // has to be inverted 
 #define FPSerial softSerial
@@ -15,17 +17,97 @@ SoftwareSerial softSerial(/*rx =*/D5, /*tx =*/D6); // has to be inverted
 
 #define BUTTON_PIN D2
 
+// Replace with your network credentials
+const char* ssid = "YOUR_WIFI_SSID";
+const char* password = "YOUR_WIFI_PASSWORD";
+
+// Start a web server on port 80 (standard HTTP port)
+ESP8266WebServer server(80);
+
+// Pin definition (using the built-in LED on the D1 Mini)
+const int ledPin = LED_BUILTIN; 
+
+// HTML code for the webpage (stored in flash memory)
+const char HTML[] PROGMEM = R"=====(
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Stargate</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f0f2f5; color: #333; }
+        .container { max-width: 400px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .button { background-color: #007bff; border: none; color: white; padding: 14px 28px; 
+                  text-align: center; font-size: 16px; margin: 10px; cursor: pointer; 
+                  border-radius: 6px; width: 80%; transition: background 0.2s; font-weight: bold; }
+        .button:hover { background-color: #0056b3; }
+        .button-off { background-color: #dc3545; }
+        .button-off:hover { background-color: #bd2130; }
+        #status-msg { margin-top: 20px; font-weight: bold; color: #28a745; min-height: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Control your stargate</h2>
+        <p>Control your device seamlessly.</p>
+        
+        <!-- Buttons call JavaScript functions instead of normal links -->
+        <button class="button" onclick="sendCommand('/handleDialing')">Dial</button>
+        <button class="button" onclick="sendCommand('/handleDemo')">Demo</button>
+        <button class="button" onclick="sendCommand('/handlePlayTheme')">Play theme</button>
+        <button class="button" onclick="sendCommand('/handleChevronDemo')">Run chevron demo</button>
+        <button class="button" onclick="sendCommand('/handleStopAll')">Stop all</button>
+
+        <button class="button button-off" onclick="sendCommand('/led-off')">Turn Off LED</button>
+        <button class="button button-off" onclick="sendCommand('/led-on')">Turn On LED</button>
+
+        <div id="status-msg"></div>
+    </div>
+
+    <script>
+    // This function sends a stealth request to the D1 Mini in the background
+    function sendCommand(endpoint) {
+        let msgDiv = document.getElementById("status-msg");
+        
+        fetch(endpoint)
+            .then(response => {
+                if(response.ok) {
+                    msgDiv.innerText = "Command executed successfully!";
+                    msgDiv.style.color = "#28a745";
+                } else {
+                    msgDiv.innerText = "Server error occurred.";
+                    msgDiv.style.color = "#dc3545";
+                }
+                // Clear the status message after 2 seconds
+                setTimeout(() => { msgDiv.innerText = ""; }, 2000);
+            })
+            .catch(err => {
+                msgDiv.innerText = "Failed to connect to D1 Mini.";
+                msgDiv.style.color = "#dc3545";
+            });
+    }
+    </script>
+</body>
+</html>
+)=====";
+
+// This function runs when you access the root IP address
+void handleRoot() {
+  server.send(200, "text/html", HTML);
+}
+
 //CRGB dialingLed[NUM_LEDS];
 CRGBArray<NUM_LEDS> dialingLed;
 CRGBSet chevron05(dialingLed(0,2)); // 0+1+2 = 3 leds
-CRGBSet chevron06(dialingLed(6,8)); // 6+7+8 and so on 
-CRGBSet chevron07(dialingLed(12,14)); // done
-CRGBSet chevron08(dialingLed(18,20)); // 
-CRGBSet lockingChevron(dialingLed(25,29)); // 25-27
-CRGBSet chevron01(dialingLed(30,32)); // done
-CRGBSet chevron02(dialingLed(36,38)); // done
-CRGBSet chevron03(dialingLed(42,44)); // done
-CRGBSet chevron04(dialingLed(47,49)); // 47. done
+CRGBSet chevron06(dialingLed(6,8)); // 6+7+8
+CRGBSet chevron07(dialingLed(12,14)); // 12,13,14
+CRGBSet chevron08(dialingLed(18,20)); // 18,19,20
+CRGBSet lockingChevron(dialingLed(25,29)); // 25,26,27,28,29
+CRGBSet chevron01(dialingLed(30,32)); // 30,31,32
+CRGBSet chevron02(dialingLed(36,38)); // 36,37,38
+CRGBSet chevron03(dialingLed(42,44)); // 42,43,44
+CRGBSet chevron04(dialingLed(47,49)); // 47,48,49
+
 CRGBArray<NUM_LEDS2> wormHoleLed;
 
 Button button(BUTTON_PIN);
@@ -79,6 +161,38 @@ void setup()
 
   //set_max_power_in_volts_and_milliamps(5, 500); // FastLED Power management set at 5V, 500mA.
   FastLED.setBrightness(240); // out of 255
+
+  //initWifiAndServer();
+}
+
+void initWifiAndServer()
+{
+ // Connect to Wi-Fi
+  WiFi.begin(ssid, password);
+  Serial.print("Connecting to Wi-Fi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  
+  // Print the D1 Mini's IP address
+  Serial.println("");
+  Serial.print("Connected! IP address: ");
+  Serial.println(WiFi.localIP());
+
+  // Define the URI routes and associate them with functions
+  server.on("/", handleRoot);
+  server.on("/handleDialing", handleDialing);
+  server.on("/handleDemo", handleDemo);
+  server.on("/handlePlayTheme", handlePlayTheme);
+  server.on("/handleChevronDemo", handleChevronDemo);
+  server.on("/handleChevronDemo", handleStopAll);
+  server.on("/led-off", handleLedOff);
+  server.on("/led-on", handleLedOn);
+
+  // Start the server
+  server.begin();
+  Serial.println("HTTP server started");
 }
 
 void initPlayer()
@@ -119,43 +233,19 @@ void loop()
     for (int i = 0; i <= NUM_LEDS2; i++) { wormholeArray[i][0] = 0; wormholeArray[i][1] = 255; wormholeArray[i][2] = 1; wormholeArray[i][3] = 0; }
 
     if (buttonPressCount == 1) {
-      Serial.println(F("1. Dialing"));
-      myDFPlayer.stop();
-      dialing = true;
-      wormholeActive = false;
-      myDFPlayer.volume(19);
-      myDFPlayer.play(1);
+      handleDialing();
     }
     else if (buttonPressCount == 2) {
-      Serial.println(F("2. Demo"));
-      myDFPlayer.stop();
-      dialing = false;
-      wormholeActive = true;
-      //myDFPlayer.volume(10);
-      //myDFPlayer.loop(2);
-      wormholeDemo();
+      handleDemo();
     }
     else if (buttonPressCount == 3) {
-      Serial.println(F("3. Play theme"));
-      myDFPlayer.stop();
-      myDFPlayer.volume(19);
-      myDFPlayer.play(1);
-      dialing = false;
-      wormholeActive = false;
+      handlePlayTheme();
     }
     else if (buttonPressCount == 4) {
-      Serial.println(F("4. Chevron demo"));
-      myDFPlayer.stop();
-      dialing = false;
-      wormholeActive = false;
-      chevronDemo();
+      handleChevronDemo() ;
     }
     else {
-      Serial.println(F("No Button, stop all"));
-      wormholeActive = false;
-      dialing = false;
-      myDFPlayer.stop();
-      FastLED.clear();
+      handleStopAll();
     }
   }
 
@@ -170,59 +260,135 @@ void loop()
   FastLED.show();
 }
 
-void chevronDemo() {
-      // vibrant, high-brightness Orange.
-      // Hue (H)	19	The color type. On FastLED's 0-255 scale, 0 is Red and 32 is Orange. 19 sits between them, resulting in a reddish-orange or "Amber" tone.
-      // Saturation (S)	255	The intensity. 255 is "maximum saturation," meaning the color is pure and has no white mixed in.
-      // Value (V)	255	The brightness. 255 is the maximum brightness setting for that specific pixel.
-      chevron01 = CHSV(19,255,255);
-      FastLED.show();
-      delay(2000);
-      chevron02 = CHSV(19,255,255);
-      FastLED.show();
-      delay(2000);
-      chevron03 = CHSV(19,255,255);
-      FastLED.show();
-      delay(2000);
-      chevron04 = CHSV(19,255,255);
-      FastLED.show();
-      delay(2000);
-      chevron05 = CHSV(19,255,255);
-      FastLED.show();
-      delay(2000);
-      chevron06 = CHSV(19,255,255);
-      FastLED.show();
-      delay(2000);
-      chevron07 = CHSV(19,255,255);
-      FastLED.show();
-      delay(2000);
-      chevron08 = CHSV(19,255,255);
-      FastLED.show();
-      delay(2000);
-      lockingChevron = CHSV(19,255,255);
-      FastLED.show();
-      delay(2000);
+void handleLedOn() {
+  digitalWrite(ledPin, LOW); // Turn on built-in LED
+
+  server.send(200, "text/plain", "OK");
 }
 
+void handleLedOff() {
+  digitalWrite(ledPin, HIGH); // Turn off built-in LED
+  
+  server.send(200, "text/plain", "OK");
+}
+
+void handleDialing() {
+  Serial.println(F("1. Dialing"));
+  myDFPlayer.stop();
+  dialing = true;
+  wormholeActive = false;
+  myDFPlayer.volume(19);
+  myDFPlayer.play(1);
+
+  dialingSequence();
+  FastLED.show();
+
+  server.send(200, "text/plain", "OK");
+}
+
+void handleDemo() {
+  Serial.println(F("2. Demo"));
+  myDFPlayer.stop();
+  dialing = false;
+  wormholeActive = true;
+  //myDFPlayer.volume(10);
+  //myDFPlayer.loop(2);
+  wormholeDemo();
+  
+  wormholeSequence();
+  FastLED.show();
+
+  server.send(200, "text/plain", "OK");
+}
+
+void handlePlayTheme() {
+  Serial.println(F("3. Play theme"));
+  myDFPlayer.stop();
+  myDFPlayer.volume(19);
+  myDFPlayer.play(1);
+  dialing = false;
+  wormholeActive = false;
+
+  FastLED.show();
+
+  server.send(200, "text/plain", "OK");
+}
+
+void handleChevronDemo() {
+  Serial.println(F("4. Chevron demo"));
+  myDFPlayer.stop();
+  dialing = false;
+  wormholeActive = false;
+  chevronDemo();
+
+  FastLED.show();
+
+  server.send(200, "text/plain", "OK");
+}
+
+void handleStopAll() {
+  Serial.println(F("No Button, stop all"));
+  wormholeActive = false;
+  dialing = false;
+  myDFPlayer.stop();
+  FastLED.clear();
+
+  FastLED.show();
+
+  server.send(200, "text/plain", "OK");
+}
+
+void chevronDemo() {
+  // vibrant, high-brightness Orange.
+  // Hue (H)	19	The color type. On FastLED's 0-255 scale, 0 is Red and 32 is Orange. 19 sits between them, resulting in a reddish-orange or "Amber" tone.
+  // Saturation (S)	255	The intensity. 255 is "maximum saturation," meaning the color is pure and has no white mixed in.
+  // Value (V)	255	The brightness. 255 is the maximum brightness setting for that specific pixel.
+  chevron01 = CHSV(19,255,255);
+  FastLED.show();
+  delay(2000);
+  chevron02 = CHSV(19,255,255);
+  FastLED.show();
+  delay(2000);
+  chevron03 = CHSV(19,255,255);
+  FastLED.show();
+  delay(2000);
+  chevron04 = CHSV(19,255,255);
+  FastLED.show();
+  delay(2000);
+  chevron05 = CHSV(19,255,255);
+  FastLED.show();
+  delay(2000);
+  chevron06 = CHSV(19,255,255);
+  FastLED.show();
+  delay(2000);
+  chevron07 = CHSV(19,255,255);
+  FastLED.show();
+  delay(2000);
+  chevron08 = CHSV(19,255,255);
+  FastLED.show();
+  delay(2000);
+  lockingChevron = CHSV(19,255,255);
+  FastLED.show();
+  delay(2000);
+}
 
 void wormholeDemo() {
-    //wormholeStartMillis = millis();
-    if (wormholeActive) {
-      // vibrant, high-brightness Orange.
-      // Hue (H)	19	The color type. On FastLED's 0-255 scale, 0 is Red and 32 is Orange. 19 sits between them, resulting in a reddish-orange or "Amber" tone.
-      // Saturation (S)	255	The intensity. 255 is "maximum saturation," meaning the color is pure and has no white mixed in.
-      // Value (V)	255	The brightness. 255 is the maximum brightness setting for that specific pixel.
-      chevron01 = CHSV(19,255,255);
-      chevron02 = CHSV(19,255,255);
-      chevron03 = CHSV(19,255,255);
-      chevron04 = CHSV(19,255,255);
-      chevron05 = CHSV(19,255,255);
-      chevron06 = CHSV(19,255,255);
-      chevron07 = CHSV(19,255,255);
-      chevron08 = CHSV(19,255,255);
-      lockingChevron = CHSV(19,255,255);
-    }
-
+  //wormholeStartMillis = millis();
+  if (wormholeActive) {
+    // vibrant, high-brightness Orange.
+    // Hue (H)	19	The color type. On FastLED's 0-255 scale, 0 is Red and 32 is Orange. 19 sits between them, resulting in a reddish-orange or "Amber" tone.
+    // Saturation (S)	255	The intensity. 255 is "maximum saturation," meaning the color is pure and has no white mixed in.
+    // Value (V)	255	The brightness. 255 is the maximum brightness setting for that specific pixel.
+    chevron01 = CHSV(19,255,255);
+    chevron02 = CHSV(19,255,255);
+    chevron03 = CHSV(19,255,255);
+    chevron04 = CHSV(19,255,255);
+    chevron05 = CHSV(19,255,255);
+    chevron06 = CHSV(19,255,255);
+    chevron07 = CHSV(19,255,255);
+    chevron08 = CHSV(19,255,255);
+    lockingChevron = CHSV(19,255,255);
+  }
 }
 
 void wormholeSequence() {
