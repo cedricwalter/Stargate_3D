@@ -137,6 +137,10 @@ The pin numbers in the Stargate.ino will indicate what wires were used for the b
 
 WIP
 
+## WIFI webpage to control the gate
+Look in the Serial console for the ip adress of the board and open it, e.g. http://192.168.1.50
+
+You will have a webpage to control the Stargate
 
 ## Get other mp3
 

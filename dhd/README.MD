@@ -37,6 +37,12 @@ edit dhd.ino and set WIFI SSID and password
 in the code verify that each symbols is properly mapped
 ![alt text](img/symbols.jpg)
 
+## WIFI webpage to control the DHD
+Look in the Serial console for the ip adress of the board and open it, e.g. http://192.168.1.50
+
+You will have a webpage to control the DHD
+
+![DHD webpage](img/dhd-webpage.png)
 
 ## Links
 - https://stargate.fandom.com/wiki/Dial_Home_Device
