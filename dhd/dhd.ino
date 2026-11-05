@@ -226,15 +226,43 @@ void lightUpGlyphLed(int glyphId) {
     case 4:  dhd = CRGB::OrangeRed;    break; // Boötes
     case 5:  Centaurus = CRGB::OrangeRed; break;
     case 6:  Libra = CRGB::OrangeRed;  break;
-    
-    // Add additional structural cases for IDs 7 through 39 here:
-    // case 7: Serpens = CRGB::OrangeRed; break;
+    case 7:  Serpens = CRGB::OrangeRed; break;
+    case 8:  Norma = CRGB::OrangeRed; break;
+    case 9:  Scorpius = CRGB::OrangeRed; break;
+    case 10:  CoronaA = CRGB::OrangeRed; break;
+    case 11:  Scutum = CRGB::OrangeRed; break;
+    case 12:  Sagittarius = CRGB::OrangeRed; break;
+    case 13:  Aquila = CRGB::OrangeRed; break;
+    case 14:  Microscopium = CRGB::OrangeRed; break;
+    case 15:  Capricornus = CRGB::OrangeRed; break;
+    case 16:  PiscisAustrinus = CRGB::OrangeRed; break;
+    case 17:  Equuleus = CRGB::OrangeRed; break;
+    case 18:  Aquarius = CRGB::OrangeRed; break;
+    case 19:  Pegasus = CRGB::OrangeRed; break;
+    case 20:  Sculptor = CRGB::OrangeRed; break; 
+
+    case 21:  Pisces = CRGB::OrangeRed; break;     
+    case 22:  Andromeda = CRGB::OrangeRed; break;     
+    case 23:  Triangulum = CRGB::OrangeRed; break; 
+    case 24:  Aries = CRGB::OrangeRed; break;       
+    case 25:  Perseus = CRGB::OrangeRed; break;      
+    case 26:  Cetus = CRGB::OrangeRed; break;       
+    case 27:  Taurus = CRGB::OrangeRed; break;     
+    case 28:  Auriga = CRGB::OrangeRed; break;         
+    case 29:  Eridanus = CRGB::OrangeRed; break;       
+    case 30:  Orion = CRGB::OrangeRed; break;          
+    case 31:  CanisMinor = CRGB::OrangeRed; break;     
+    case 32:  Monoceros = CRGB::OrangeRed; break;    
+    case 33:  Gemini = CRGB::OrangeRed; break;         
+    case 34:  Hydra = CRGB::OrangeRed; break;          
+    case 35:  Lynx = CRGB::OrangeRed; break;         
+    case 36:  Cancer = CRGB::OrangeRed; break;       
+    case 37:  Sextans = CRGB::OrangeRed; break;        
+    case 38:  LeoMinor = CRGB::OrangeRed; break;     
+    case 39:  Leo = CRGB::OrangeRed; break;         
     
     default:
-      // Fallback for symbols without an explicit variable map yet
-      if (glyphId - 1 < NUM_LEDS) {
-        leds[glyphId - 1] = CRGB::OrangeRed;
-      }
+      Serial.println("\nGlyph mapping failed.");
       break;
   }
   
