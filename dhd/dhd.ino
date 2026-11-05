@@ -20,6 +20,9 @@ SoftwareSerial softSerial(/*rx =*/D5, /*tx =*/D6);  // has to be inverted
 const char* ssid = "YOUR_WIFI_SSID";
 const char* password = "YOUR_WIFI_PASSWORD";
 
+// lock behavior: clear DHD at each DHD key entry
+const bool lockBehavior = false;
+
 // Start a web server on port 80 (standard HTTP port)
 ESP8266WebServer server(80);
 
@@ -216,9 +219,11 @@ void loop() {
 // Helper function to illuminate a specific glyph variable by ID
 void lightUpGlyphLed(int glyphId) {
   // Clear the strip color buffers first (optional, based on desired lock behavior)
-  // FastLED.clear(); 
+  if (lockBehavior) {
+    Serial.println("\nlockBehavior=true clear all DHD light on led at each key press");
+     FastLED.clear(); 
+  }
 
-  // Map the 1-39 IDs from the DHD interface to your respective CRGBSet variables
   switch (glyphId) {
     case 1:  Earth = CRGB::OrangeRed; break;
     case 2:  Crater = CRGB::OrangeRed; break;
