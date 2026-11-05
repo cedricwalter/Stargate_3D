@@ -30,7 +30,7 @@ The Arduino hardware used is the NodeMcu Mini D1. It's a WiFi enabled board, whi
 
 The DFPlayer Mini MP3 Player For Arduino is a small and low cost MP3 module with an simplified output directly to the speaker. The module can be used as a stand alone module with attached battery, speaker and push buttons or used in combination with microcontrollers such as Arduino, ESP32, Raspberry Pi and any microcontrollers with Uart.
 
-![alt text](stargate/img/DFPlayer-pinout2.png) ![alt text](stargate/img/DFPlayer-pinout.png)
+![alt text](img/DFPlayer-pinout2.png) ![alt text](img/DFPlayer-pinout.png)
 
 #### Specification
 
@@ -63,13 +63,13 @@ You can also power everything using the USB-C port of the NodeMcu Mini D1.
 
 ## Wiring
 
-![alt text](stargate/img/circuit.png)
+![alt text](img/circuit.png)
 
 DFPlayer Mini wiring as reference
 
-![alt text](stargate/img/DFPlayer-pinout.png)
+![alt text](img/DFPlayer-pinout.png)
 
-![alt text](stargate/img/PXL_20240128_164833397.jpg) ![alt text](stargate/img/PXL_20240128_164838664.jpg) ![alt text](stargate/img/PXL_20240128_164844988.jpg)
+![alt text](img/PXL_20240128_164833397.jpg) ![alt text](img/PXL_20240128_164838664.jpg) ![alt text](img/PXL_20240128_164844988.jpg)
 
 ## Mouting LED onto the stargate
 
@@ -92,17 +92,17 @@ Copy the file 0001.mp3 onto it, unmount and insert into the player
 
 Install Arduino IDE
 
-Open the stargate/Stargate.ino file 
+Open the stargate.ino file 
 
 Set WIFI SSID and paswsord
 
 Choose your board
 
-![target board](stargate/img/target.png)
+![target board](img/target.png)
 
 Install these libraries
 
-![alt text](stargate/img/libraries.png)
+![alt text](img/libraries.png)
 
 
 if you get this error:
